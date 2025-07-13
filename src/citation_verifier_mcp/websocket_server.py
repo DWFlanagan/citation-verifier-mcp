@@ -254,9 +254,14 @@ async def handle_http_message(request: dict):
     """Handle HTTP POST messages for MCP communication."""
     try:
         # Handle the MCP message via HTTP POST
-        if request.get("method") == "initialize":
+        method = request.get("method")
+        params = request.get("params", {})
+        request_id = request.get("id")
+        
+        if method == "initialize":
             return {
-                "id": request.get("id"),
+                "jsonrpc": "2.0",
+                "id": request_id,
                 "result": {
                     "protocolVersion": "2024-11-05",
                     "capabilities": {
@@ -269,23 +274,24 @@ async def handle_http_message(request: dict):
                 }
             }
 
-        elif request.get("method") == "tools/list":
+        elif method == "tools/list":
             tools = await handle_list_tools()
             return {
-                "id": request.get("id"),
+                "jsonrpc": "2.0",
+                "id": request_id,
                 "result": {
                     "tools": [tool.model_dump() for tool in tools]
                 }
             }
 
-        elif request.get("method") == "tools/call":
-            params = request.get("params", {})
+        elif method == "tools/call":
             name = params.get("name")
             arguments = params.get("arguments", {})
 
             result = await handle_call_tool(name, arguments)
             return {
-                "id": request.get("id"),
+                "jsonrpc": "2.0",
+                "id": request_id,
                 "result": {
                     "content": [content.model_dump() for content in result]
                 }
@@ -293,16 +299,18 @@ async def handle_http_message(request: dict):
 
         else:
             return {
-                "id": request.get("id"),
+                "jsonrpc": "2.0",
+                "id": request_id,
                 "error": {
                     "code": -32601,
-                    "message": f"Method not found: {request.get('method')}"
+                    "message": f"Method not found: {method}"
                 }
             }
 
     except Exception as e:
         logger.error(f"Error handling HTTP message: {e}")
         return {
+            "jsonrpc": "2.0",
             "id": request.get("id", None),
             "error": {
                 "code": -32603,
