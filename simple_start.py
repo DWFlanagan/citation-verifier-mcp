@@ -7,7 +7,7 @@ import os
 def main():
     """Start the citation verifier server."""
     
-    # Get port from environment (Railway, Render, etc.)
+    # Get port from environment (Render, etc.)
     port = int(os.environ.get("PORT", 8000))
     host = "0.0.0.0"
     

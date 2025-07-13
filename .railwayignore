@@ -1,3 +1,0 @@
-# Tell Railway to ignore the Dockerfile and use Procfile instead
-Dockerfile
-docker-compose.yml

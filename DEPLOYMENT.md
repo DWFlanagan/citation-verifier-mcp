@@ -1,245 +1,139 @@
 # 🚀 Deployment Guide - Citation Verifier Remote MCP Server
 
-This guide shows you exactly how to deploy your remote MCP server to production.
+This guide shows you exactly how to deploy your remote MCP server to production using Render.com.
 
-## 🎯 Quick Deploy Options
+## 🎯 Quick Deploy - Render.com (Recommended)
 
-### Option 1: Railway (Recommended - 1 minute setup)
+Render.com provides excellent support for Python applications and is very easy to use.
 
-Railway is the easiest way to deploy Python apps with `uv`:
+### Prerequisites
 
-```bash
-# 1. Install Railway CLI
-npm install -g @railway/cli
+- GitHub account with this repository
+- Render.com account (free signup at [render.com](https://render.com))
 
-# 2. Login to Railway
-railway login
+### Deployment Steps
 
-# 3. Deploy from your current directory
-railway init
-railway up
-```
+1. **Connect to GitHub:**
+   - Go to [render.com](https://render.com) and sign up/login
+   - Connect your GitHub account
+   - Grant Render access to your repositories
 
-**That's it!** Railway will:
-- Auto-detect your Python project
-- Install dependencies with `uv`
-- Run your server using the `Procfile`
-- Give you a public URL like `https://your-app.up.railway.app`
+2. **Create Web Service:**
+   - Click "New +" → "Web Service"
+   - Choose "Build and deploy from a Git repository"
+   - Select your `citation-verifier-mcp` repository
+   - Click "Connect"
 
-### Option 2: Render (Also very easy)
+3. **Configure Settings:**
+   - **Name**: `citation-verifier-mcp` (or your preferred name)
+   - **Environment**: `Python 3`
+   - **Region**: Choose closest to your users
+   - **Branch**: `main`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `python simple_start.py`
+   - **Plan**: Select "Free" (perfect for testing)
 
-1. Go to [render.com](https://render.com)
-2. Connect your GitHub repository
-3. Create a new "Web Service"
-4. Set these settings:
-   - **Build Command**: `uv sync --frozen --no-dev --all-extras`
-   - **Start Command**: `uv run citation-verifier-remote`
-   - **Python Version**: 3.11
+4. **Deploy:**
+   - Click "Create Web Service"
+   - Render will automatically build and deploy your application
+   - Wait for deployment to complete (usually 2-3 minutes)
+   - You'll get a URL like: `https://citation-verifier-mcp.onrender.com`
 
-### Option 3: Fly.io (Great performance)
+## ✅ Testing Your Deployment
 
-```bash
-# 1. Install Fly CLI
-curl -L https://fly.io/install.sh | sh
+### 1. Health Check
 
-# 2. Login and create app
-fly auth login
-fly launch
-
-# 3. Deploy
-fly deploy
-```
-
-## 🐳 Docker Deployment
-
-### Local Docker Testing
+Test that your server is running:
 
 ```bash
-# Build the image
-docker build -t citation-verifier-mcp .
-
-# Run locally
-docker run -p 8000:8000 citation-verifier-mcp
-
-# Or use docker-compose
-docker-compose up
+curl https://your-app-name.onrender.com/health
 ```
 
-### Deploy to any Docker host
+Expected response:
+```json
+{"status": "healthy", "service": "citation-verifier-mcp"}
+```
 
-The included `Dockerfile` works on:
-- **DigitalOcean App Platform**
-- **Google Cloud Run**
-- **AWS ECS/Fargate**
-- **Azure Container Instances**
-- Any VPS with Docker
+### 2. MCP Protocol Test
 
-## ⚡ Platform-Specific Instructions
-
-### Railway Deployment (Detailed)
-
-1. **Prepare your repo:**
-   ```bash
-   git add .
-   git commit -m "Add remote MCP server"
-   git push origin main
-   ```
-
-2. **Deploy to Railway:**
-   ```bash
-   # Install Railway CLI
-   npm install -g @railway/cli
-   
-   # Login
-   railway login
-   
-   # Initialize project
-   railway init
-   
-   # Deploy
-   railway up
-   ```
-
-3. **Get your URL:**
-   Railway will give you a URL like: `https://citation-verifier-mcp-production.up.railway.app`
-
-### Heroku Deployment
+Test the MCP endpoints:
 
 ```bash
-# 1. Install Heroku CLI and login
-heroku login
+# Test initialization
+curl -X POST https://your-app-name.onrender.com/ \
+  -H "Content-Type: application/json" \
+  -d '{"method": "initialize", "id": 1}'
 
-# 2. Create Heroku app
-heroku create your-citation-verifier
-
-# 3. Deploy
-git push heroku main
-
-# 4. Scale up
-heroku ps:scale web=1
+# Test tools list
+curl -X POST https://your-app-name.onrender.com/ \
+  -H "Content-Type: application/json" \
+  -d '{"method": "tools/list", "id": 2}'
 ```
 
-### DigitalOcean App Platform
+### 3. Using MCP Inspector
 
-1. Go to [DigitalOcean Apps](https://cloud.digitalocean.com/apps)
-2. Create new app from GitHub
-3. Configure:
-   - **Build Command**: `uv sync --frozen --no-dev --all-extras`
-   - **Run Command**: `uv run citation-verifier-remote`
-   - **HTTP Port**: 8000
-
-### Google Cloud Run
+Test with the official MCP inspector:
 
 ```bash
-# 1. Build and push to Google Container Registry
-gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/citation-verifier
-
-# 2. Deploy to Cloud Run
-gcloud run deploy citation-verifier \
-  --image gcr.io/YOUR_PROJECT_ID/citation-verifier \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated
+npx @modelcontextprotocol/inspector https://your-app-name.onrender.com
 ```
 
-## 🔧 Configuration for Production
+## 🔧 Connecting to Claude Desktop
 
-### Environment Variables
+Once deployed, you can connect Claude Desktop to your remote server:
 
-Set these in your deployment platform:
+### Option 1: Using mcp-remote (Current Working Method)
 
-- `HOST=0.0.0.0` (already set in code)
-- `PORT=8000` (or let platform set it)
-- `LOG_LEVEL=info`
-- `RELOAD=false` (for production)
-
-### CORS Configuration
-
-For production, update the CORS settings in `websocket_server.py`:
-
-```python
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://yourdomain.com"],  # Replace with your domains
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-```
-
-## 🌐 After Deployment
-
-### 1. Test Your Deployed Server
-
-```bash
-# Replace with your actual deployed URL
-curl https://your-app.up.railway.app/health
-
-# Should return: {"status": "healthy", "service": "citation-verifier-mcp"}
-```
-
-### 2. Update Claude Desktop Configuration
+Add to your `claude_desktop_config.json`:
 
 ```json
 {
-  "mcpServers": {
-    "citation-verifier-remote": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "wss://your-app.up.railway.app/mcp"
-      ]
+    "mcpServers": {
+        "citation-verifier-mcp": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-remote",
+                "https://your-app-name.onrender.com"
+            ]
+        }
     }
-  }
 }
 ```
 
-**Note**: Use `wss://` (WebSocket Secure) for HTTPS deployments.
+### Option 2: Claude.ai Integrations (Alternative)
 
-### 3. Share with Others
+1. Go to [Claude.ai Settings > Integrations](https://claude.ai/settings/integrations)
+2. Add your server URL: `https://your-app-name.onrender.com`
 
-Your deployed server can be used by anyone! Just share the WebSocket URL:
-`wss://your-app.up.railway.app/mcp`
+## 🔄 Updates and Redeployment
 
-## 💰 Cost Estimates
+Render automatically redeploys when you push to GitHub:
 
-| Platform | Free Tier | Paid Plans |
-|----------|-----------|------------|
-| Railway | $5/month credit | $5/month + usage |
-| Render | 750 hours/month | $7/month |
-| Fly.io | 3 shared-cpu apps | $1.94/month + usage |
-| Heroku | Limited hours | $7/month |
-| DigitalOcean | N/A | $12/month |
+```bash
+# Make your changes
+git add .
+git commit -m "Update server"
+git push origin main
+```
 
-## 🚨 Troubleshooting
+Render will automatically detect the push and redeploy your service.
+
+## 📊 Monitoring
+
+- **Render Dashboard**: Monitor logs, metrics, and deployments at [dashboard.render.com](https://dashboard.render.com)
+- **Health Endpoint**: `https://your-app-name.onrender.com/health`
+- **Logs**: Available in real-time through the Render dashboard
+
+## 💡 Tips
+
+- **Free Tier**: Render's free tier is perfect for testing and personal use
+- **Custom Domain**: You can add a custom domain in the Render dashboard
+- **Environment Variables**: Add any needed environment variables in the Render dashboard
+- **Automatic HTTPS**: Render provides free SSL certificates automatically
+
+## 🆘 Troubleshooting
 
 ### Common Issues
 
-1. **Build Fails**: Ensure `uv.lock` is committed to git
-2. **Port Binding**: Make sure you're using `HOST=0.0.0.0`
-3. **WebSocket Errors**: Check that the platform supports WebSockets
-4. **CORS Issues**: Update allowed origins in production
-
-### Debug Commands
-
-```bash
-# Check logs (Railway)
-railway logs
-
-# Check logs (Heroku)
-heroku logs --tail
-
-# Test WebSocket connection
-wscat -c wss://your-deployed-url.com/mcp
-```
-
-## 🎉 Success!
-
-Once deployed, your citation verifier will be available to anyone with the URL. They can use it in:
-
-- Claude Desktop (via mcp-remote)
-- Custom MCP clients
-- Web applications
-- Other AI tools that support MCP
-
-Your academic citation verification tool is now accessible worldwide! 🌍
+1. **Build Fails**: Check that `requirements.txt` is properly formatted

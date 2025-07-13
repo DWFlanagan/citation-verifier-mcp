@@ -128,8 +128,8 @@ The server will be available at `http://localhost:8000` with these endpoints:
 #### Deploy to Production
 
 See [`REMOTE_SETUP.md`](./REMOTE_SETUP.md) for detailed deployment instructions including:
-- Cloud deployment (Railway, Heroku, DigitalOcean)
-- Docker containerization
+- Cloud deployment (Render.com)
+- Simple deployment to cloud platforms
 - Production configuration
 - Security considerations
 

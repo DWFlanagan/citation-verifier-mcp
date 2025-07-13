@@ -84,20 +84,15 @@ For applications that support WebSocket directly, connect to: `ws://localhost:80
 
 ### Cloud Deployment
 
-#### Railway
-```bash
-# Install Railway CLI
-npm install -g @railway/cli
+#### Render.com (Recommended)
+1. Connect your GitHub repository to Render.com
+2. Create a new Web Service
+3. Configure:
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `python simple_start.py`
+4. Deploy automatically on git push
 
-# Login and deploy
-railway login
-railway init
-railway up
-```
-
-#### Heroku
-```bash
-# Create Procfile
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 echo "web: uv run citation-verifier-remote --host 0.0.0.0 --port \$PORT" > Procfile
 
 # Deploy
@@ -107,37 +102,8 @@ git push heroku main
 
 #### DigitalOcean App Platform
 1. Connect your GitHub repository
-2. Set build command: `uv sync --all-extras`
-3. Set run command: `uv run citation-verifier-remote --host 0.0.0.0 --port $PORT`
-
-### Docker Deployment
-
-Create a `Dockerfile`:
-```dockerfile
-FROM python:3.11-slim
-
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
-
-# Copy project files
-WORKDIR /app
-COPY . .
-
-# Install dependencies
-RUN uv sync --all-extras --no-dev
-
-# Expose port
-EXPOSE 8000
-
-# Run server
-CMD ["uv", "run", "citation-verifier-remote"]
-```
-
-Build and run:
-```bash
-docker build -t citation-verifier-mcp .
-docker run -p 8000:8000 citation-verifier-mcp
-```
+2. Set build command: `pip install -r requirements.txt`
+3. Set run command: `python simple_start.py`
 
 ## Configuration
 

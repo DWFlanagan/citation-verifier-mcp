@@ -104,7 +104,7 @@ uv run citation-verifier-remote
 - [ ] Test citation verification through the remote interface
 
 ### Deployment
-- [ ] Choose a cloud provider (Railway, Heroku, DigitalOcean)
+- [ ] Choose a cloud provider (Render.com recommended)
 - [ ] Deploy your server to production
 - [ ] Update Claude Desktop config to use your public URL
 - [ ] Share your remote MCP server with others!
