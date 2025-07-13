@@ -226,13 +226,14 @@ async def sse_endpoint():
 
     async def generate_sse():
         """Generate SSE events for MCP communication."""
-        # This is a simplified SSE implementation
-        # In a full implementation, you'd need to handle bidirectional communication
+        # Proper SSE headers and format
+        yield "event: connect\n"
         yield f"data: {json.dumps({'type': 'connection', 'status': 'ready'})}\n\n"
 
         # Keep connection alive
         while True:
             await asyncio.sleep(30)  # Send keepalive every 30 seconds
+            yield "event: keepalive\n"
             yield f"data: {json.dumps({'type': 'keepalive'})}\n\n"
 
     return StreamingResponse(
@@ -241,8 +242,73 @@ async def sse_endpoint():
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
         },
     )
+
+
+@app.post("/messages")
+async def handle_http_message(request: dict):
+    """Handle HTTP POST messages for MCP communication."""
+    try:
+        # Handle the MCP message via HTTP POST
+        if request.get("method") == "initialize":
+            return {
+                "id": request.get("id"),
+                "result": {
+                    "protocolVersion": "2024-11-05",
+                    "capabilities": {
+                        "tools": {}
+                    },
+                    "serverInfo": {
+                        "name": "citation-verifier",
+                        "version": "0.1.0"
+                    }
+                }
+            }
+
+        elif request.get("method") == "tools/list":
+            tools = await handle_list_tools()
+            return {
+                "id": request.get("id"),
+                "result": {
+                    "tools": [tool.model_dump() for tool in tools]
+                }
+            }
+
+        elif request.get("method") == "tools/call":
+            params = request.get("params", {})
+            name = params.get("name")
+            arguments = params.get("arguments", {})
+
+            result = await handle_call_tool(name, arguments)
+            return {
+                "id": request.get("id"),
+                "result": {
+                    "content": [content.model_dump() for content in result]
+                }
+            }
+
+        else:
+            return {
+                "id": request.get("id"),
+                "error": {
+                    "code": -32601,
+                    "message": f"Method not found: {request.get('method')}"
+                }
+            }
+
+    except Exception as e:
+        logger.error(f"Error handling HTTP message: {e}")
+        return {
+            "id": request.get("id", None),
+            "error": {
+                "code": -32603,
+                "message": f"Internal error: {str(e)}"
+            }
+        }
 
 
 @app.get("/health")
