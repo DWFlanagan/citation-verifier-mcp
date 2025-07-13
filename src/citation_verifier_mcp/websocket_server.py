@@ -328,6 +328,12 @@ async def root():
     }
 
 
+@app.post("/")
+async def handle_root_message(request: dict):
+    """Handle HTTP POST messages at root path for MCP communication."""
+    return await handle_http_message(request)
+
+
 def main():
     """Main entry point for the remote MCP server."""
     import os
