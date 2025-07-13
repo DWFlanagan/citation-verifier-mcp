@@ -26,7 +26,7 @@ def main():
         )
     except ImportError:
         print("❌ Error: uvicorn not found. Installing dependencies...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements-simple.txt"])
         import uvicorn
         uvicorn.run(
             "src.citation_verifier_mcp.websocket_server:app",
