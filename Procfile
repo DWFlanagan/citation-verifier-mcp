@@ -1,1 +1,1 @@
-web: uv run citation-verifier-remote
+web: python railway_start.py
