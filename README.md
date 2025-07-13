@@ -11,6 +11,8 @@ This server wraps the [llm-citation-verifier](https://github.com/dwflanagan/llm-
 - ✅ **Extract bibliographic metadata** (title, authors, journal, year)
 - ✅ **Clean, formatted output** with clear verification status
 - ✅ **No API keys required** - uses public Crossref API
+- 🆕 **Remote access support** - Deploy as a web service for remote MCP clients
+- 🆕 **WebSocket & HTTP endpoints** - Compatible with web-based MCP clients
 
 ## Installation
 
@@ -40,6 +42,10 @@ pip install citation-verifier-mcp
 ```
 
 ## Usage
+
+### Local MCP Server (Claude Desktop)
+
+This is the traditional way to use the server with Claude Desktop locally.
 
 ### With Claude Desktop
 
@@ -79,7 +85,55 @@ Claude: I'll verify that DOI using the citation verification tool.
 This DOI exists in the Crossref database and appears to be a legitimate citation.
 ```
 
-### Development
+### Remote MCP Server (Web Service)
+
+🆕 **New!** You can now run the Citation Verifier as a remote web service, similar to the [Cloudflare MCP example](https://github.com/cloudflare/ai/tree/main/demos/remote-mcp-authless).
+
+#### Quick Start
+
+```bash
+# Start the remote server
+./launch_remote_server.sh
+
+# Or manually:
+uv run python start_server.py
+```
+
+The server will be available at `http://localhost:8000` with these endpoints:
+- **WebSocket**: `ws://localhost:8000/mcp` (for MCP clients)
+- **Health Check**: `http://localhost:8000/health`
+- **API Info**: `http://localhost:8000/`
+
+#### Connect Claude Desktop to Remote Server
+
+1. Install the mcp-remote proxy:
+   ```bash
+   npm install -g mcp-remote
+   ```
+
+2. Update your Claude Desktop configuration:
+   ```json
+   {
+     "mcpServers": {
+       "citation-verifier-remote": {
+         "command": "npx",
+         "args": ["mcp-remote", "ws://localhost:8000/mcp"]
+       }
+     }
+   }
+   ```
+
+3. Restart Claude Desktop
+
+#### Deploy to Production
+
+See [`REMOTE_SETUP.md`](./REMOTE_SETUP.md) for detailed deployment instructions including:
+- Cloud deployment (Railway, Heroku, DigitalOcean)
+- Docker containerization
+- Production configuration
+- Security considerations
+
+## Development
 
 ```bash
 # Install with development dependencies (already done with uv sync)
