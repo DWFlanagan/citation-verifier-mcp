@@ -8,20 +8,16 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "mcp>=1.0.0",
-    "llm-citation-verifier>=0.1.1",
-]
-
-[project.scripts]
-citation-verifier-mcp = "src.citation_verifier_mcp.server:main"
-citation-verifier-remote = "src.citation_verifier_mcp.websocket_server:main"
-
-[project.optional-dependencies]
-server = [
+    "llm-citation-verifier>=0.1.2",
     "fastapi>=0.104.0",
     "uvicorn[standard]>=0.24.0",
     "websockets>=12.0",
     "python-multipart>=0.0.6",
 ]
+
+[project.scripts]
+citation-verifier-mcp = "src.citation_verifier_mcp.server:main"
+citation-verifier-remote = "src.citation_verifier_mcp.websocket_server:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -33,7 +29,7 @@ dev-dependencies = [
     "pytest-asyncio>=0.23.0",
     "mypy>=1.8.0",
     "ruff>=0.3.0",
-    "websockets>=12.0",  # For testing WebSocket connections
+    "websockets>=12.0", # For testing WebSocket connections
 ]
 
 [tool.ruff]

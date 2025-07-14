@@ -1,5 +1,10 @@
 version = 1
 requires-python = ">=3.10"
+resolution-markers = [
+    "python_full_version >= '3.11' and python_full_version < '3.13'",
+    "python_full_version < '3.11'",
+    "python_full_version >= '3.13'",
+]
 
 [[package]]
 name = "annotated-types"
@@ -109,13 +114,9 @@ name = "citation-verifier-mcp"
 version = "0.0.1"
 source = { editable = "." }
 dependencies = [
+    { name = "fastapi" },
     { name = "llm-citation-verifier" },
     { name = "mcp" },
-]
-
-[package.optional-dependencies]
-server = [
-    { name = "fastapi" },
     { name = "python-multipart" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "websockets" },
@@ -132,12 +133,12 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", marker = "extra == 'server'", specifier = ">=0.104.0" },
-    { name = "llm-citation-verifier", specifier = ">=0.1.1" },
+    { name = "fastapi", specifier = ">=0.104.0" },
+    { name = "llm-citation-verifier", specifier = ">=0.1.2" },
     { name = "mcp", specifier = ">=1.0.0" },
-    { name = "python-multipart", marker = "extra == 'server'", specifier = ">=0.0.6" },
-    { name = "uvicorn", extras = ["standard"], marker = "extra == 'server'", specifier = ">=0.24.0" },
-    { name = "websockets", marker = "extra == 'server'", specifier = ">=12.0" },
+    { name = "python-multipart", specifier = ">=0.0.6" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.24.0" },
+    { name = "websockets", specifier = ">=12.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -205,7 +206,7 @@ name = "exceptiongroup"
 version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0b/9f/a65090624ecf468cdca03533906e7c69ed7588582240cfe7cc9e770b50eb/exceptiongroup-1.3.0.tar.gz", hash = "sha256:b241f5885f560bc56a59ee63ca4c6a8bfa46ae4ad651af316d4e81817bb9fd88", size = 29749 }
 wheels = [
@@ -452,15 +453,15 @@ wheels = [
 
 [[package]]
 name = "llm-citation-verifier"
-version = "0.1.1"
+version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "llm" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/47/f3/ae3d082f029de4ba13d8c238b56d18c426a0e33feaa96fc1ba7d632f24cb/llm_citation_verifier-0.1.1.tar.gz", hash = "sha256:f4199f7d57d019a6b2aa20a9be6ab48536a2d594826dc63e8c2519a925b0aed1", size = 4630 }
+sdist = { url = "https://files.pythonhosted.org/packages/83/70/349e81b35388547ecb395035133df759487d009e0fee0c2c4677c355d801/llm_citation_verifier-0.1.2.tar.gz", hash = "sha256:4b5d9bd1c8511976f3a52bdf4276d027ff317438fafdaab87141d55c2ffa06f8", size = 4666 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8b/c8/fada81581964bb5f6c01fd4661dbaf022ed6981638fd72421bed29684463/llm_citation_verifier-0.1.1-py3-none-any.whl", hash = "sha256:3f841b25e999c483194c643d0da05ad6b52578a4b975f1731c7332ad05d0df91", size = 5934 },
+    { url = "https://files.pythonhosted.org/packages/e0/1e/f3c83c6943407384413b471e1c0fb319706880df5efb7288ebef7b7bc596/llm_citation_verifier-0.1.2-py3-none-any.whl", hash = "sha256:a867b18048e383ea95bb2d9dc530900674a46f9fe95f13758308e189bc7c092e", size = 6119 },
 ]
 
 [[package]]

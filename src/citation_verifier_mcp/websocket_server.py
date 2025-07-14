@@ -4,7 +4,7 @@ import asyncio
 import json
 import logging
 from contextlib import asynccontextmanager
-from typing import Any, Dict, List, Optional
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
 import mcp.types as types
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 citation_verifier: Optional[CitationVerifier] = None
 
 
-async def initialize_citation_verifier():
+async def initialize_citation_verifier() -> None:
     """Initialize the citation verifier."""
     global citation_verifier
 
@@ -33,7 +33,7 @@ async def initialize_citation_verifier():
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Manage application lifespan."""
     # Startup
     await initialize_citation_verifier()
@@ -140,7 +140,7 @@ This DOI exists in the Crossref database and appears to be a legitimate citation
 class MCPConnection:
     """Manages a single MCP connection via WebSocket."""
 
-    def __init__(self, websocket: WebSocket):
+    def __init__(self, websocket: WebSocket) -> None:
         self.websocket = websocket
         self.initialized = False
 
@@ -194,7 +194,7 @@ class MCPConnection:
 
 
 @app.websocket("/mcp")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket) -> None:
     """WebSocket endpoint for MCP communication."""
     await websocket.accept()
     connection = MCPConnection(websocket)
@@ -221,10 +221,10 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 @app.get("/sse")
-async def sse_endpoint():
+async def sse_endpoint() -> StreamingResponse:
     """Server-Sent Events endpoint for MCP communication."""
 
-    async def generate_sse():
+    async def generate_sse() -> AsyncGenerator[str, None]:
         """Generate SSE events for MCP communication."""
         # Proper SSE headers and format
         yield "event: connect\n"
@@ -250,28 +250,23 @@ async def sse_endpoint():
 
 
 @app.post("/messages")
-async def handle_http_message(request: dict):
+async def handle_http_message(request: dict) -> dict:
     """Handle HTTP POST messages for MCP communication."""
     try:
         # Handle the MCP message via HTTP POST
         method = request.get("method")
         params = request.get("params", {})
         request_id = request.get("id")
-        
+
         if method == "initialize":
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
                 "result": {
                     "protocolVersion": "2024-11-05",
-                    "capabilities": {
-                        "tools": {}
-                    },
-                    "serverInfo": {
-                        "name": "citation-verifier",
-                        "version": "0.1.0"
-                    }
-                }
+                    "capabilities": {"tools": {}},
+                    "serverInfo": {"name": "citation-verifier", "version": "0.1.0"},
+                },
             }
 
         elif method == "tools/list":
@@ -279,9 +274,7 @@ async def handle_http_message(request: dict):
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "result": {
-                    "tools": [tool.model_dump() for tool in tools]
-                }
+                "result": {"tools": [tool.model_dump() for tool in tools]},
             }
 
         elif method == "tools/call":
@@ -292,19 +285,14 @@ async def handle_http_message(request: dict):
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "result": {
-                    "content": [content.model_dump() for content in result]
-                }
+                "result": {"content": [content.model_dump() for content in result]},
             }
 
         else:
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "error": {
-                    "code": -32601,
-                    "message": f"Method not found: {method}"
-                }
+                "error": {"code": -32601, "message": f"Method not found: {method}"},
             }
 
     except Exception as e:
@@ -312,21 +300,18 @@ async def handle_http_message(request: dict):
         return {
             "jsonrpc": "2.0",
             "id": request.get("id", None),
-            "error": {
-                "code": -32603,
-                "message": f"Internal error: {str(e)}"
-            }
+            "error": {"code": -32603, "message": f"Internal error: {str(e)}"},
         }
 
 
 @app.get("/health")
-async def health_check():
+async def health_check() -> dict[str, str]:
     """Health check endpoint."""
     return {"status": "healthy", "service": "citation-verifier-mcp"}
 
 
 @app.get("/")
-async def root():
+async def root() -> dict[str, Any]:
     """Root endpoint with API information."""
     return {
         "name": "Citation Verifier MCP Server",
@@ -337,22 +322,23 @@ async def root():
 
 
 @app.post("/")
-async def handle_root_message(request: dict):
+async def handle_root_message(request: dict) -> dict:
     """Handle HTTP POST messages at root path for MCP communication."""
     return await handle_http_message(request)
 
 
-def main():
+def main() -> None:
     """Main entry point for the remote MCP server."""
     import os
+
     import uvicorn
-    
+
     # Get configuration from environment variables (for production deployment)
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", 8000))
     log_level = os.getenv("LOG_LEVEL", "info")
     reload = os.getenv("RELOAD", "false").lower() == "true"
-    
+
     uvicorn.run(
         "src.citation_verifier_mcp.websocket_server:app",
         host=host,

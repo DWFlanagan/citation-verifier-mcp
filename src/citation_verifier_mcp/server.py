@@ -14,13 +14,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Initialize the MCP server
-server = Server("citation-verifier", version="0.1.0")
+server: Server = Server("citation-verifier", version="0.1.2")
 
 # Global citation verifier instance
 citation_verifier = None
 
 
-async def initialize_citation_verifier():
+async def initialize_citation_verifier() -> None:
     """Initialize the citation verifier."""
     global citation_verifier
 
@@ -117,7 +117,7 @@ This DOI exists in the Crossref database and appears to be a legitimate citation
     return output
 
 
-async def main():
+async def main() -> None:
     """Run the MCP server."""
     try:
         # Initialize citation verifier

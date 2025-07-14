@@ -5,11 +5,12 @@ Simple test script to verify the WebSocket MCP server is working correctly.
 
 import asyncio
 import json
-import websockets
 import sys
 
+import websockets
 
-async def test_mcp_server():
+
+async def test_mcp_server() -> None:
     """Test the MCP WebSocket server."""
     uri = "ws://localhost:8000/mcp"
 

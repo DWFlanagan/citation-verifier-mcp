@@ -6,7 +6,7 @@ Ultra-simple startup script for deployment
 import os
 
 
-def main():
+def main() -> None:
     """Start the citation verifier server."""
 
     # Get port from environment (Render, etc.)
