@@ -20,6 +20,7 @@ SERVER_PORT = 8000
 TEST_DOI = "10.1038/nature12373"
 INVALID_DOI = "invalid-doi-format"
 
+
 class RemoteServerTester:
     def __init__(self):
         self.server_process: Optional[subprocess.Popen] = None
@@ -31,15 +32,20 @@ class RemoteServerTester:
             # Start server directly with uvicorn
             self.server_process = subprocess.Popen(
                 [
-                    sys.executable, "-m", "uvicorn",
+                    sys.executable,
+                    "-m",
+                    "uvicorn",
                     "src.citation_verifier_mcp.websocket_server:app",
-                    "--host", SERVER_HOST,
-                    "--port", str(SERVER_PORT),
-                    "--log-level", "warning"  # Reduce noise
+                    "--host",
+                    SERVER_HOST,
+                    "--port",
+                    str(SERVER_PORT),
+                    "--log-level",
+                    "warning",  # Reduce noise
                 ],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                text=True
+                text=True,
             )
 
             # Wait for server to start
@@ -79,6 +85,8 @@ class RemoteServerTester:
         print("\n🔗 Testing WebSocket connection...")
         try:
             async with websockets.connect(SERVER_URL) as websocket:
+                # Test the connection by sending a ping or just verify connection
+                await websocket.ping()
                 print("✅ Successfully connected to WebSocket")
                 return True
         except Exception as e:
@@ -90,12 +98,7 @@ class RemoteServerTester:
         print("\n📋 Testing tools list...")
         try:
             async with websockets.connect(SERVER_URL) as websocket:
-                request = {
-                    "jsonrpc": "2.0",
-                    "id": 1,
-                    "method": "tools/list",
-                    "params": {}
-                }
+                request = {"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}
 
                 await websocket.send(json.dumps(request))
                 response = await websocket.recv()
@@ -124,12 +127,7 @@ class RemoteServerTester:
                     "jsonrpc": "2.0",
                     "id": 2,
                     "method": "tools/call",
-                    "params": {
-                        "name": "verify_citation",
-                        "arguments": {
-                            "doi": TEST_DOI
-                        }
-                    }
+                    "params": {"name": "verify_citation", "arguments": {"doi": TEST_DOI}},
                 }
 
                 await websocket.send(json.dumps(request))
@@ -139,9 +137,11 @@ class RemoteServerTester:
                 if "result" in response_data:
                     result = response_data["result"]
                     print("✅ Citation verification successful!")
-                    print(f"   Content type: {result.get('content', [{}])[0].get('type', 'unknown')}")
-                    if result.get('content') and len(result['content']) > 0:
-                        content = result['content'][0].get('text', '')
+                    print(
+                        f"   Content type: {result.get('content', [{}])[0].get('type', 'unknown')}"
+                    )
+                    if result.get("content") and len(result["content"]) > 0:
+                        content = result["content"][0].get("text", "")
                         if len(content) > 100:
                             print(f"   Preview: {content[:100]}...")
                         else:
@@ -164,12 +164,7 @@ class RemoteServerTester:
                     "jsonrpc": "2.0",
                     "id": 3,
                     "method": "tools/call",
-                    "params": {
-                        "name": "verify_citation",
-                        "arguments": {
-                            "doi": INVALID_DOI
-                        }
-                    }
+                    "params": {"name": "verify_citation", "arguments": {"doi": INVALID_DOI}},
                 }
 
                 await websocket.send(json.dumps(request))
@@ -184,8 +179,12 @@ class RemoteServerTester:
                 elif "result" in response_data:
                     # Check if the result indicates a failure
                     result = response_data["result"]
-                    content = result.get('content', [{}])[0].get('text', '')
-                    if 'error' in content.lower() or 'invalid' in content.lower() or 'not found' in content.lower():
+                    content = result.get("content", [{}])[0].get("text", "")
+                    if (
+                        "error" in content.lower()
+                        or "invalid" in content.lower()
+                        or "not found" in content.lower()
+                    ):
                         print("✅ Error handling works correctly (in content)")
                         print(f"   Response: {content[:100]}...")
                         return True
@@ -219,9 +218,9 @@ class RemoteServerTester:
                 results.append((test_name, False))
 
         # Summary
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print("📊 TEST SUMMARY")
-        print("="*50)
+        print("=" * 50)
 
         passed = 0
         total = len(results)
@@ -240,6 +239,7 @@ class RemoteServerTester:
         else:
             print("💥 Some tests failed. Check the output above for details.")
             return False
+
 
 async def main():
     """Main test runner."""
@@ -263,6 +263,7 @@ async def main():
     finally:
         # Always stop server
         tester.stop_server()
+
 
 if __name__ == "__main__":
     success = asyncio.run(main())
