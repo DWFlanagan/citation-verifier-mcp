@@ -50,6 +50,7 @@ curl https://your-app-name.onrender.com/health
 ```
 
 Expected response:
+
 ```json
 {"status": "healthy", "service": "citation-verifier-mcp"}
 ```

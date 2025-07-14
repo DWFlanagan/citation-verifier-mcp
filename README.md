@@ -59,7 +59,7 @@ This is the traditional way to use the server with Claude Desktop locally.
 2. Restart Claude Desktop
 3. The citation verification tool will be available in your conversations:
 
-```
+```bash
 You: Can you verify this DOI for me: 10.1038/nature12373
 
 Claude: I'll verify that DOI using the citation verification tool.

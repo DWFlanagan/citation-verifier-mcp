@@ -5,6 +5,7 @@ This document explains how to deploy and use your Citation Verifier MCP Server a
 ## What's New: Remote Access
 
 Your MCP server now supports **remote access** through HTTP endpoints, allowing it to be used by:
+
 - Claude Desktop (via `mcp-remote` proxy)
 - Web-based MCP clients
 - Any application that supports MCP over WebSocket or HTTP
@@ -23,6 +24,7 @@ The remote server exposes several endpoints:
 ### 1. Start the Remote Server
 
 Using uv (recommended):
+
 ```bash
 # Navigate to your project directory
 cd /path/to/citation-verifier-mcp
@@ -32,6 +34,7 @@ uv run python start_server.py
 ```
 
 Or using the console script:
+
 ```bash
 uv run citation-verifier-remote
 ```
@@ -51,11 +54,13 @@ To connect Claude Desktop to your remote MCP server:
 ### Option 1: Using mcp-remote (Recommended)
 
 1. Install the mcp-remote proxy:
+
    ```bash
    npm install -g mcp-remote
    ```
 
 2. Update your Claude Desktop configuration (`claude_desktop_config.json`):
+
    ```json
    {
      "mcpServers": {
@@ -79,12 +84,14 @@ For applications that support WebSocket directly, connect to: `ws://localhost:80
 ## Deployment Options
 
 ### Local Development
+
 - Run locally as shown above
 - Access via `http://localhost:8000`
 
 ### Cloud Deployment
 
 #### Render.com (Recommended)
+
 1. Connect your GitHub repository to Render.com
 2. Create a new Web Service
 3. Configure:
@@ -95,12 +102,15 @@ For applications that support WebSocket directly, connect to: `ws://localhost:80
 See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 echo "web: uv run citation-verifier-remote --host 0.0.0.0 --port \$PORT" > Procfile
 
-# Deploy
+## Deploy
+
+```bash
 heroku create your-citation-verifier
 git push heroku main
 ```
 
-#### DigitalOcean App Platform
+### DigitalOcean App Platform
+
 1. Connect your GitHub repository
 2. Set build command: `pip install -r requirements.txt`
 3. Set run command: `python simple_start.py`
@@ -116,6 +126,7 @@ git push heroku main
 ### Production Considerations
 
 1. **CORS**: Update CORS origins in production:
+
    ```python
    # In websocket_server.py
    app.add_middleware(
@@ -134,18 +145,23 @@ git push heroku main
 ## API Endpoints
 
 ### GET /
+
 Returns server information and available endpoints.
 
 ### GET /health
+
 Health check endpoint returning server status.
 
 ### WebSocket /mcp
+
 Main MCP communication endpoint. Supports:
+
 - `initialize` - Initialize MCP session
 - `tools/list` - List available tools
 - `tools/call` - Call citation verification tool
 
 ### GET /sse
+
 Server-Sent Events endpoint (basic implementation).
 
 ## Usage Examples
@@ -192,15 +208,18 @@ wscat -c ws://localhost:8000/mcp
 ## Troubleshooting
 
 ### Server Won't Start
+
 - Check if port 8000 is already in use: `lsof -i :8000`
 - Try a different port: `uv run citation-verifier-remote --port 8001`
 
 ### Claude Desktop Can't Connect
+
 - Ensure the server is running: `curl http://localhost:8000/health`
 - Check Claude Desktop logs for connection errors
 - Verify `mcp-remote` is installed: `npm list -g mcp-remote`
 
 ### WebSocket Connection Issues
+
 - Test WebSocket connection with wscat
 - Check firewall settings
 - Ensure proper CORS configuration
@@ -216,6 +235,7 @@ wscat -c ws://localhost:8000/mcp
 ## Support
 
 For issues specific to the remote server implementation, check:
+
 - Server logs: The FastAPI server provides detailed logging
 - Health endpoint: `GET /health` shows server status
 - Original MCP server: Your stdio-based server in `server.py` still works locally

@@ -1,7 +1,13 @@
 {
     "cSpell.words": [
+        "conftest",
         "keepalive",
         "Reichsöllner",
         "Takekoshi"
-    ]
+    ],
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }
