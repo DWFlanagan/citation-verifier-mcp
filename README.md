@@ -35,12 +35,6 @@ uv sync
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 ```
 
-### From PyPI (when published)
-
-```bash
-pip install citation-verifier-mcp
-```
-
 ## Usage
 
 ### Local MCP Server (Claude Desktop)
@@ -100,6 +94,7 @@ uv run python start_server.py
 ```
 
 The server will be available at `http://localhost:8000` with these endpoints:
+
 - **WebSocket**: `ws://localhost:8000/mcp` (for MCP clients)
 - **Health Check**: `http://localhost:8000/health`
 - **API Info**: `http://localhost:8000/`
@@ -107,11 +102,13 @@ The server will be available at `http://localhost:8000` with these endpoints:
 #### Connect Claude Desktop to Remote Server
 
 1. Install the mcp-remote proxy:
+
    ```bash
    npm install -g mcp-remote
    ```
 
 2. Update your Claude Desktop configuration:
+
    ```json
    {
      "mcpServers": {
@@ -128,6 +125,7 @@ The server will be available at `http://localhost:8000` with these endpoints:
 #### Deploy to Production
 
 See [`REMOTE_SETUP.md`](./REMOTE_SETUP.md) for detailed deployment instructions including:
+
 - Cloud deployment (Render.com)
 - Simple deployment to cloud platforms
 - Production configuration
